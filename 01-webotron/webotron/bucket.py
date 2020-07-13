@@ -27,6 +27,9 @@ class BucketManager:
         )
         self.manifest = {}
 
+    def get_bucket(self, bucket_name):
+        """Get a bucket by name."""
+        return self.s3.Bucket(bucket_name)
 
     def get_region_name(self, bucket):
         """Get the bucket's region name."""
@@ -96,7 +99,7 @@ class BucketManager:
         })
 
     def load_manifest(self, bucket):
-        """load manifest for caching purposes."""
+        """Load manifest for caching purposes."""
         paginator = self.s3.meta.client.get_paginator('list_objects_v2')
         for page in paginator.paginate(Bucket=bucket.name):
             for obj in page.get('Contents', []):
@@ -128,7 +131,8 @@ class BucketManager:
         elif len(hashes) == 1:
             return '"{}"'.format(hashes[0].hexdigest())
         else:
-            hash = self.hash_data(reduce(lambda x, y: x + y, (h.digest() for h in hashes)))
+            hash = self.hash_data(reduce(lambda x, y: x + y,
+                                         (h.digest() for h in hashes)))
             return '"{}-{}"'.format(hash.hexdigest(), len(hashes))
 
     @staticmethod
