@@ -8,7 +8,7 @@ from hashlib import md5
 from pathlib import Path
 
 import boto3
-import util
+from webotron import util
 from botocore.exceptions import ClientError
 
 
