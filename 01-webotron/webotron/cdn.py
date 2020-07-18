@@ -49,7 +49,7 @@ class DistributionManager:
                 },
                 'DefaultCacheBehavior': {
                     'TargetOriginId': origin_id,
-                    'ViewerProtocolPolicy': 'redirect_to_https',
+                    'ViewerProtocolPolicy': 'redirect-to-https',
                     'TrustedSigners': {
                         'Quantity': 0,
                         'Enabled': False
@@ -73,32 +73,10 @@ class DistributionManager:
 
         return result['Distribution']
 
-    def await_deply(self, dist):
+    def await_deploy(self, dist):
         """Wait for dist to be deployed."""
         waiter = self.client.get_waiter('distribution_deployed')
         waiter.wait(Id=dist['Id'], WaiterConfig={
             'Delay': 30,
             'MaxAttempts': 50
         })
-
-    def create_cf_domain_record(self, zone, domain_name, cf_domain):
-        """Create a domain record in zone for domain_name."""
-        return self.client.change_resource_record_sets(
-            HostedZoneId=zone['HostedZone']['Id'],
-            ChangeBatch={
-                'Comment': 'Created by webotron',
-                'Changes': [{
-                        'Action': 'UPSERT',
-                        'ResourceRecordSet': {
-                            'Name': domain_name,
-                            'Type': 'A',
-                            'AliasTarget': {
-                                'HostedZoneId': 'Z2FDTNDATAQYW2',
-                                'DNSName': cf_domain,
-                                'EvaluateTargetHealth': False
-                            }
-                        }
-                    }
-                ]
-            }
-        )
